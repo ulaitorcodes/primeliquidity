@@ -1,34 +1,17 @@
-export const instant = false;
-"use client";
 
-import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import { useSession } from "@/lib/auth/use-session";
+import { Suspense } from "react";
+import LoanLinkContent from "./LoanLinkContent";
 
 export default function LoanLinkPage() {
-  const { id } = useParams<{ id: string }>();
-  const { user, loading } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (loading) return;
-    if (!user) {
-      router.replace(`/login?next=${encodeURIComponent(`/loans/${id}`)}`);
-      return;
-    }
-    const target =
-      user.role === "admin"
-        ? `/admin/finance/loans/${id}`
-        : user.role === "agent"
-          ? `/agent/loans/${id}`
-          : `/dashboard/loans/${id}`;
-    router.replace(target);
-  }, [loading, user, id, router]);
-
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Loader2 className="animate-spin text-brand-600" />
-    </div>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="animate-spin rounded-full h-6 w-6 border-2 border-brand-600 border-t-transparent" />
+        </div>
+      }
+    >
+      <LoanLinkContent />
+    </Suspense>
   );
 }
