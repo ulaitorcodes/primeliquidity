@@ -1,11 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useSession } from "@/lib/auth/use-session";
 
-export default function LoanLinkPage() {
+function Spinner() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <Loader2 className="animate-spin text-brand-600" />
+    </div>
+  );
+}
+
+function LoanRedirect() {
   const { id } = useParams<{ id: string }>();
   const { user, loading } = useSession();
   const router = useRouter();
@@ -25,9 +33,17 @@ export default function LoanLinkPage() {
     router.replace(target);
   }, [loading, user, id, router]);
 
+  return <Spinner />;
+}
+
+/**
+ * The reminder emails link to /loans/<id>. useParams() needs a Suspense boundary so Next
+ * can prerender around it, so the redirect logic lives in LoanRedirect.
+ */
+export default function LoanLinkPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Loader2 className="animate-spin text-brand-600" />
-    </div>
+    <Suspense fallback={<Spinner />}>
+      <LoanRedirect />
+    </Suspense>
   );
 }

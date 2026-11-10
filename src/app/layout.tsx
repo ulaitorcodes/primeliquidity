@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ToastProvider } from "@/components/ui/toast";
@@ -25,7 +26,9 @@ export default function RootLayout({
       <body className="font-sans" suppressHydrationWarning>
         <ToastProvider>
           <SessionRestorer />
-          {children}
+          {/* Safety net: any page that reads the URL or other runtime data streams in
+              instead of blocking the build. */}
+          <Suspense fallback={null}>{children}</Suspense>
         </ToastProvider>
       </body>
     </html>
